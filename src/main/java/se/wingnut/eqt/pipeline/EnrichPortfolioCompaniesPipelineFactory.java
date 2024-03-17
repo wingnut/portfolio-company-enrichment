@@ -14,6 +14,8 @@ import org.apache.beam.sdk.values.TypeDescriptors;
 import se.wingnut.eqt.domain.Organization;
 import se.wingnut.eqt.domain.PortfolioCompany;
 
+import static se.wingnut.eqt.Main.*;
+
 public class EnrichPortfolioCompaniesPipelineFactory {
     private static final String PATH = "$.result.data.allSanityCompanyPage.nodes";
 
@@ -24,31 +26,35 @@ public class EnrichPortfolioCompaniesPipelineFactory {
      * @return Default pipeline, using default values for names/compression
      */
     public Pipeline createPipeline() {
-        return createPipeline("tmp/portfolio-companies-from-web.json", Compression.UNCOMPRESSED, "tmp/organizations-from-gcp.json", Compression.GZIP);
+        PipelineCfg cfg = new PipelineCfg(
+                new PipelineCfg.PipelineFile(PORTFOLIO_FROM_WEB, Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile(DIVESTMENTS_FROM_WEB, Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile(FUNDS_FROM_WEB, Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile(ENRICHMENT_FUNDS_FROM_GCP, Compression.GZIP),
+                new PipelineCfg.PipelineFile(ENRICHMENT_ORGS_FROM_WEB, Compression.GZIP),
+                new PipelineCfg.PipelineFile(ENRICHMENT_ORGS_FROM_WEB, Compression.GZIP)
+        );
+        return createPipeline(cfg);
     }
 
     /**
-     * Variation for using test files that may be shorter and/or compressed/uncomressed
-     * @param portfolioCompaniesFileName The path to the test file containing portfolio companies (as they would have looked after scraping/downloading from the web)
-     * @param portfolioCompaniesCompression Which compression to expect the portfolio companies file in (or uncompressed)
-     * @param organizationsFileName The path to the test file containing additional organization data (as they would have looked after downloading from GCP bucket)
-     * @param organizationsCompression Which compression to expect the organizations file in (or uncompressed)
+     * Variation for using test files that may be shorter and/or compressed/uncompressed
      * @return The pipeline ready for running
      */
-    public Pipeline createPipeline(String portfolioCompaniesFileName, Compression portfolioCompaniesCompression, String organizationsFileName, Compression organizationsCompression) {
+    public Pipeline createPipeline(PipelineCfg cfg) {
         Pipeline pipeline = Pipeline.create();
 
         PCollection<String> jsonString = pipeline.apply("Read JSON containing portfolio companies",
-                TextIO.read().from(portfolioCompaniesFileName)
-                        .withCompression(portfolioCompaniesCompression));
+                TextIO.read().from(cfg.portfolioFromWeb().url())
+                        .withCompression(cfg.portfolioFromWeb().compression()));
 
         PCollection<PortfolioCompany> portfolioCompaniesFromWeb = jsonString
                 .apply("Extract with JsonPath", ParDo.of(new ExtractPortfolioCompanyElementsFromPathDoFn(PATH)));
 
         PCollection<Organization> additionalOrganizationDataFromGCP = pipeline
                 .apply("Read additional Organization data as downloaded from GCP bucket",
-                        TextIO.read().from(organizationsFileName)
-                                .withCompression(organizationsCompression))
+                        TextIO.read().from(cfg.enrichmentOrgsFromGCP().url())
+                                .withCompression(cfg.enrichmentOrgsFromGCP().compression()))
                 .apply("Parse organizations from JSON strings",
                         ParDo.of(new ParseJsonFn<>(Organization.class))).setCoder(SerializableCoder.of(Organization.class));
 
@@ -66,7 +72,7 @@ public class EnrichPortfolioCompaniesPipelineFactory {
                         MapElements.into(TypeDescriptors.strings())
                                 .via((SerializableFunction<KV<String, KV<PortfolioCompany, Organization>>, String>) new PortfolioCompanyToJsonFn()))
                 .apply("Write JSON to resulting file and compress",
-                        TextIO.write().to("src/test/resources/output/enrichedPortfolioCompanies.json")
+                        TextIO.write().to(FINAL_ENRICHED_PORTFOLIO_FILE)
                                 .withoutSharding()); // Produce one output file only here in local env
 
         return pipeline;

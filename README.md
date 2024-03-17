@@ -1,7 +1,8 @@
 # EQT Code Test - Michael Mrazek
 
 ### Next Steps
-- [ ] Download all files in parallel in main() before creating and running pipeline
+- [X] Download all files in parallel in main() before creating and running pipeline
+- [ ] Filter org enrichment data first to only include the orgs in the portfolio (for memory reasons)
 
 - [ ] Try running with real full dataset to spot any outliers
 
