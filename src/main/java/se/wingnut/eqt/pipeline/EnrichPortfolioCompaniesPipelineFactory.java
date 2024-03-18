@@ -34,7 +34,7 @@ public class EnrichPortfolioCompaniesPipelineFactory {
                 new PipelineCfg.PipelineFile(FUNDS_FROM_WEB, Compression.UNCOMPRESSED),
                 new PipelineCfg.PipelineFile(ENRICHMENT_FUNDS_FROM_GCP_UNCOMPRESSED, Compression.UNCOMPRESSED),
                 new PipelineCfg.PipelineFile(ENRICHMENT_ORGS_FROM_GCP_UNCOMPRESSED, Compression.UNCOMPRESSED),
-                new PipelineCfg.PipelineFile(FINAL_ENRICHED_PORTFOLIO_FILE, Compression.UNCOMPRESSED)
+                new PipelineCfg.PipelineFile(FINAL_ENRICHED_PORTFOLIO_FILE, Compression.GZIP)
         );
         return createPipeline(cfg);
     }
@@ -83,7 +83,8 @@ public class EnrichPortfolioCompaniesPipelineFactory {
                         MapElements.into(TypeDescriptors.strings())
                                 .via((SerializableFunction<KV<String, KV<PortfolioCompany, Organization>>, String>) new PortfolioCompanyToJsonFn()))
                 .apply("Write JSON to resulting file and compress",
-                        TextIO.write().to(FINAL_ENRICHED_PORTFOLIO_FILE)
+                        TextIO.write().to(cfg.finalEnrichedPortfolioCompaniesFile().url())
+                                .withCompression(cfg.finalEnrichedPortfolioCompaniesFile().compression())
                                 .withoutSharding()); // Produce one output file only here in local env
 
         return pipeline;
