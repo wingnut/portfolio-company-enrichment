@@ -1,10 +1,20 @@
 # EQT Code Test - Michael Mrazek
 
+### Building (from project root)
+```
+./mvnw clean package
+```
+
+### Running (from project root) (Java 17 is required)
+<span style="color:red">Java 17 is required</span>
+```
+java -jar target/portfolio-company-enrichment-1.0-SNAPSHOT-jar-with-dependencies.jar
+```
+
 ### Next Steps
 - [X] Download all files in parallel in main() before creating and running pipeline
-- [ ] Filter org enrichment data first to only include the orgs in the portfolio (for memory reasons)
-
-- [ ] Try running with real full dataset to spot any outliers
+- [X] Filter org enrichment data first to only include the orgs in the portfolio (for memory reasons)
+- [X] Run with real full dataset to spot any outliers
 
 - [ ] Download "divestment" companies too and concatenate with portfolio companies
   - Use a flag for divestment or separate record?
@@ -28,3 +38,5 @@
 - Variations on spelling such as:
   - "AM Pharma" != "AM-Pharma"
   - "Colisee" != "Colisée"
+
+

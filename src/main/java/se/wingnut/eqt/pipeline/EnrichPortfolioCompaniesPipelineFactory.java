@@ -16,7 +16,7 @@ import se.wingnut.eqt.domain.PortfolioCompany;
 
 import java.util.List;
 
-import static se.wingnut.eqt.Main.*;
+import static se.wingnut.eqt.EqtApp.*;
 
 public class EnrichPortfolioCompaniesPipelineFactory {
     private static final String PATH = "$.result.data.allSanityCompanyPage.nodes";

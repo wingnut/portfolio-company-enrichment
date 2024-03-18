@@ -6,7 +6,7 @@ import se.wingnut.eqt.util.Decompressor;
 import se.wingnut.eqt.util.Downloader;
 import se.wingnut.eqt.util.UrlFilePair;
 
-public class Main {
+public class EqtApp {
     public static final String PORTFOLIO_FROM_WEB = "tmp/current-portfolio-from-web.json";
     public static final String DIVESTMENTS_FROM_WEB = "tmp/divestments-from-web.json";
     public static final String FUNDS_FROM_WEB = "tmp/funds-from-web.json";
