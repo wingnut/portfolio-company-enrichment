@@ -1,6 +1,5 @@
 package se.wingnut.eqt.pipeline;
 
-import com.google.gson.Gson;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.extensions.joinlibrary.Join;
@@ -73,21 +72,4 @@ public class EnrichPortfolioCompaniesPipelineFactory {
         return pipeline;
     }
 
-    static class SelectTitleFn extends DoFn<PortfolioCompany, String> {
-        @ProcessElement
-        public void processElement(ProcessContext c) {
-            c.output(c.element().title().toLowerCase());
-        }
-    }
-
-    static class FilterBySideInputFn extends DoFn<String, String> {
-        @ProcessElement
-        public void processElement(ProcessContext c, @Element String org, @SideInput("titleFilterView") List<String> titleFilter) {
-            Organization o = new Gson().fromJson(org, Organization.class);
-            // No guarantees but better overall success rate using case-insensitive matching
-            if (titleFilter.contains(o.name().toLowerCase())) {
-                c.output(org);
-            }
-        }
-    }
 }

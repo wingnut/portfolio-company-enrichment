@@ -17,7 +17,7 @@ public class ParseJsonFnTest {
     Organization organization = new Organization("some-long-uuid", "My Company", null, null, null, null, null, null, null, null, null);
 
     @Test
-    void processElement_Organization() {
+    void processElement_ParseOrganization() {
         when(mockPC.element()).thenReturn("{\"uuid\": \"some-long-uuid\", \"name\": \"My Company\"}");
         new ParseJsonFn<>(Organization.class).processElement(mockPC);
         // For org, we use name as join "column"

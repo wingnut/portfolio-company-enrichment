@@ -64,7 +64,7 @@ public class PortfolioCompanyToJsonFnTest {
     String expectedJson = new Gson().toJson(expectedEnrichedPortfolioCompany);
 
     @Test
-    void processElement_Organization() {
+    void processElement_EnrichJson() {
         String json = new PortfolioCompanyToJsonFn().apply(KV.of("My Company", KV.of(portfolioCompany, organization)));
         assertEquals(expectedJson, json);
     }

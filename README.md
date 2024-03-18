@@ -63,6 +63,7 @@ If ran in a real infrastructure, this would not be a problem. When loading the l
   - Also enrich with stuff from each individual fund page??? Seems like overkill.
     - The resulting data set would blow up in size due to the long description of the fund
     - DirectRunners (local dev) don't support downloading over http, so it would get messy in local dev
+- [ ] PERFORMANCE No profiling etc has been done, and I'm (as an example) creating new Gson parsers quite frivolously. But this is meant as a functional demo and I wanted to keep it simple.
 
 ## Next steps/thoughts for a real production pipeline
 - Logging (The warnings for: `SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder"`can be safely ignored, I'm not using any logging framework such as logback.)
