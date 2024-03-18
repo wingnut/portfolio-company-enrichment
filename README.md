@@ -45,8 +45,14 @@ A typical run last for about a minute or two on my MacBook
 Final enriched output file can be found under: `tmp/final-enriched-portfolio-companies.json.gz` unless otherwise configured
 
 # Longer explanation/reasoning
-This project is meant as a foundation for discussion in the code test review. There are some areas of a real production system that I have skipped, such as infra structure for running in the cloud etc.
-More details below.
+This project is meant as a *foundation for discussion* in the code test review. There are some areas of a real production system that I have skipped, such as infra structure for running in the cloud etc. See below for details.
+
+The **main area of focus** is the `EnrichPortfolioCompaniesPipelineFactory`class, that is responsible for setting up the Apache Beam pipeline. So perhaps start there.
+There are a bunch of (disabled) tests with a `Poc`-prefix. Those are only there as a reference, so you can get a feel for how the development has evolved. But sometimes such PoC-tests can live on longer for explaining *simplified concepts* used in the actual production code.
+
+**DirectRunner** has been used which has its limitations, such as no support for http. This means that downloading of files/json is not done in the pipeline, but instead before the pipeline is started.
+If ran in a real infrastructure, this would not be a problem. When loading the large organization reference data file, sideInputs (sometimes called broadcast variables in other techstacks) are used for filtering on the (relatively) short list of portfolio company ids.
+
 
 ### Improvements
 - [X] Download all files in parallel in main() before creating and running pipeline

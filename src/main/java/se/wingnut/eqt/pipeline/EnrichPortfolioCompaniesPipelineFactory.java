@@ -80,10 +80,10 @@ public class EnrichPortfolioCompaniesPipelineFactory {
 
     static class FilterBySideInputFn extends DoFn<String, String> {
         @ProcessElement
-        public void processElement(ProcessContext c, @Element String org, @SideInput("titleFilterView") List<String> titleFilterView) {
+        public void processElement(ProcessContext c, @Element String org, @SideInput("titleFilterView") List<String> titleFilter) {
             Organization o = new Gson().fromJson(org, Organization.class);
             // No guarantees but better overall success rate using case-insensitive matching
-            if (titleFilterView.contains(o.name().toLowerCase())) {
+            if (titleFilter.contains(o.name().toLowerCase())) {
                 c.output(org);
             }
         }
