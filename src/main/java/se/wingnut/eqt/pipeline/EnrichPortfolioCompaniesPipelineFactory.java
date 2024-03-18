@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.extensions.joinlibrary.Join;
-import org.apache.beam.sdk.io.Compression;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.transforms.*;
 import org.apache.beam.sdk.values.KV;
@@ -16,28 +15,10 @@ import se.wingnut.eqt.domain.PortfolioCompany;
 
 import java.util.List;
 
-import static se.wingnut.eqt.EqtApp.*;
-
 public class EnrichPortfolioCompaniesPipelineFactory {
     private static final String PATH = "$.result.data.allSanityCompanyPage.nodes";
 
     private static final Organization DEFAULT_ORGANIZATION = new Organization(null, null, null, null, null, null, null, null, null, null, null);
-
-    /**
-     * Convenience method
-     * @return Default pipeline, using default values for names/compression
-     */
-    public Pipeline createPipeline() {
-        PipelineCfg cfg = new PipelineCfg(
-                new PipelineCfg.PipelineFile(PORTFOLIO_FROM_WEB, Compression.UNCOMPRESSED),
-                new PipelineCfg.PipelineFile(DIVESTMENTS_FROM_WEB, Compression.UNCOMPRESSED),
-                new PipelineCfg.PipelineFile(FUNDS_FROM_WEB, Compression.UNCOMPRESSED),
-                new PipelineCfg.PipelineFile(ENRICHMENT_FUNDS_FROM_GCP_UNCOMPRESSED, Compression.UNCOMPRESSED),
-                new PipelineCfg.PipelineFile(ENRICHMENT_ORGS_FROM_GCP_UNCOMPRESSED, Compression.UNCOMPRESSED),
-                new PipelineCfg.PipelineFile(FINAL_ENRICHED_PORTFOLIO_FILE, Compression.GZIP)
-        );
-        return createPipeline(cfg);
-    }
 
     /**
      * Variation for using test files that may be shorter and/or compressed/uncompressed

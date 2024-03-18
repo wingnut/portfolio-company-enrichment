@@ -1,7 +1,9 @@
 package se.wingnut.eqt;
 
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.io.Compression;
 import se.wingnut.eqt.pipeline.EnrichPortfolioCompaniesPipelineFactory;
+import se.wingnut.eqt.pipeline.PipelineCfg;
 import se.wingnut.eqt.util.Decompressor;
 import se.wingnut.eqt.util.Downloader;
 import se.wingnut.eqt.util.UrlFilePair;
@@ -36,7 +38,19 @@ public class EqtApp {
             System.out.println("SKIPPING Downloading/scraping web for portfolio data and GCP for additional org/fund data, expecting the files to already have been downloaded and uncompressed...");
         }
 
-        Pipeline pipeline = new EnrichPortfolioCompaniesPipelineFactory().createPipeline();
+        // Set up the configuration of the pipeline using the downloaded json files
+        PipelineCfg cfg = new PipelineCfg(
+                new PipelineCfg.PipelineFile(PORTFOLIO_FROM_WEB, Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile(DIVESTMENTS_FROM_WEB, Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile(FUNDS_FROM_WEB, Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile(ENRICHMENT_FUNDS_FROM_GCP_UNCOMPRESSED, Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile(ENRICHMENT_ORGS_FROM_GCP_UNCOMPRESSED, Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile(FINAL_ENRICHED_PORTFOLIO_FILE, Compression.GZIP)
+        );
+
+        Pipeline pipeline = new EnrichPortfolioCompaniesPipelineFactory().createPipeline(cfg);
+        System.out.println("Starting enrichment pipeline");
         pipeline.run().waitUntilFinish();
+        System.out.println("Enrichment pipeline finished, check: " + cfg.finalEnrichedPortfolioCompaniesFile().url() + ".gz" + " for the result. Depending on if the cfg is to zip the output file or not, it will have different suffixes: .json or .json.gz");
     }
 }

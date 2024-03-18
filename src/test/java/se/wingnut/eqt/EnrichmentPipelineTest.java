@@ -1,11 +1,15 @@
 package se.wingnut.eqt;
 
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.io.Compression;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import se.wingnut.eqt.pipeline.EnrichPortfolioCompaniesPipelineFactory;
+import se.wingnut.eqt.pipeline.PipelineCfg;
 import se.wingnut.eqt.util.Downloader;
 import se.wingnut.eqt.util.UrlFilePair;
+
+import static se.wingnut.eqt.EqtApp.*;
 
 public class EnrichmentPipelineTest {
 
@@ -24,7 +28,16 @@ public class EnrichmentPipelineTest {
     @Disabled()
     @Test
     void enrich() {
-        Pipeline pipeline = new EnrichPortfolioCompaniesPipelineFactory().createPipeline();
+        PipelineCfg cfg = new PipelineCfg(
+                new PipelineCfg.PipelineFile(PORTFOLIO_FROM_WEB, Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile(DIVESTMENTS_FROM_WEB, Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile(FUNDS_FROM_WEB, Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile(ENRICHMENT_FUNDS_FROM_GCP_UNCOMPRESSED, Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile(ENRICHMENT_ORGS_FROM_GCP_UNCOMPRESSED, Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile(FINAL_ENRICHED_PORTFOLIO_FILE, Compression.GZIP)
+        );
+
+        Pipeline pipeline = new EnrichPortfolioCompaniesPipelineFactory().createPipeline(cfg);
         pipeline.run().waitUntilFinish();
     }
 }
