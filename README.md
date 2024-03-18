@@ -6,7 +6,7 @@
 ```
 
 ### Running (from project root) (Java 17 is required)
-<span style="color:red">Java 17 is required</span>
+<span style="color:red">Java 17 is required</span> Tip: Use https://sdkman.io/ for installing multiple java versions and switching between them with ease
 ```
 java -jar target/portfolio-company-enrichment-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
