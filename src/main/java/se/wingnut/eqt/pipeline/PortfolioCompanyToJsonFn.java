@@ -26,10 +26,10 @@ public class PortfolioCompanyToJsonFn extends SimpleFunction<KV<String, KV<Portf
                 pc.sector(),
                 pc.title(),
                 pc.topic(),
-                // Enriching with the organization data, leaving out any duplicate fields (already in the portfolio company JSON) by setting them to null
+                // Enriching with the organization data, leave out any duplicate fields (already in the portfolio company JSON) by setting them to null
                 new Organization(
                         o.uuid(),
-                        null, // SKIPPING: Same as pc.title
+                        o.name(), // Same as pc.title, so we _could_ set this to null to avoid duplicating data. However, it is just one field, so I'll keep it for easier debugging
                         o.homepage_url(),
                         o.country_code(),
                         o.city(),

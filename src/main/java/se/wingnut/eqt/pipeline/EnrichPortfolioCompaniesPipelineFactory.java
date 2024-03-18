@@ -1,18 +1,20 @@
 package se.wingnut.eqt.pipeline;
 
+import com.google.gson.Gson;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.extensions.joinlibrary.Join;
 import org.apache.beam.sdk.io.Compression;
 import org.apache.beam.sdk.io.TextIO;
-import org.apache.beam.sdk.transforms.MapElements;
-import org.apache.beam.sdk.transforms.ParDo;
-import org.apache.beam.sdk.transforms.SerializableFunction;
+import org.apache.beam.sdk.transforms.*;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
+import org.apache.beam.sdk.values.PCollectionView;
 import org.apache.beam.sdk.values.TypeDescriptors;
 import se.wingnut.eqt.domain.Organization;
 import se.wingnut.eqt.domain.PortfolioCompany;
+
+import java.util.List;
 
 import static se.wingnut.eqt.Main.*;
 
@@ -30,9 +32,9 @@ public class EnrichPortfolioCompaniesPipelineFactory {
                 new PipelineCfg.PipelineFile(PORTFOLIO_FROM_WEB, Compression.UNCOMPRESSED),
                 new PipelineCfg.PipelineFile(DIVESTMENTS_FROM_WEB, Compression.UNCOMPRESSED),
                 new PipelineCfg.PipelineFile(FUNDS_FROM_WEB, Compression.UNCOMPRESSED),
-                new PipelineCfg.PipelineFile(ENRICHMENT_FUNDS_FROM_GCP, Compression.GZIP),
-                new PipelineCfg.PipelineFile(ENRICHMENT_ORGS_FROM_WEB, Compression.GZIP),
-                new PipelineCfg.PipelineFile(ENRICHMENT_ORGS_FROM_WEB, Compression.GZIP)
+                new PipelineCfg.PipelineFile(ENRICHMENT_FUNDS_FROM_GCP_UNCOMPRESSED, Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile(ENRICHMENT_ORGS_FROM_GCP_UNCOMPRESSED, Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile(FINAL_ENRICHED_PORTFOLIO_FILE, Compression.UNCOMPRESSED)
         );
         return createPipeline(cfg);
     }
@@ -51,10 +53,20 @@ public class EnrichPortfolioCompaniesPipelineFactory {
         PCollection<PortfolioCompany> portfolioCompaniesFromWeb = jsonString
                 .apply("Extract with JsonPath", ParDo.of(new ExtractPortfolioCompanyElementsFromPathDoFn(PATH)));
 
-        PCollection<Organization> additionalOrganizationDataFromGCP = pipeline
+        // Filter orgs and keep only the orgs in the portfolio (the orgs data is too big to fit in memory for a normal PC)
+        PCollection<String> titles = portfolioCompaniesFromWeb.apply("Select Title",
+                ParDo.of(new SelectTitleFn()));
+        // Create a PCollectionView from filterIds
+        PCollectionView<List<String>> titleFilterView = titles.apply(View.asList());
+
+        PCollection<String> filteredAdditionalOrganizationDataFromGCP = pipeline
                 .apply("Read additional Organization data as downloaded from GCP bucket",
                         TextIO.read().from(cfg.enrichmentOrgsFromGCP().url())
                                 .withCompression(cfg.enrichmentOrgsFromGCP().compression()))
+                .apply("Filter by title",
+                        ParDo.of(new FilterBySideInputFn()).withSideInput("titleFilterView", titleFilterView));
+
+        PCollection<Organization> additionalOrganizationDataFromGCP = filteredAdditionalOrganizationDataFromGCP
                 .apply("Parse organizations from JSON strings",
                         ParDo.of(new ParseJsonFn<>(Organization.class))).setCoder(SerializableCoder.of(Organization.class));
 
@@ -76,5 +88,23 @@ public class EnrichPortfolioCompaniesPipelineFactory {
                                 .withoutSharding()); // Produce one output file only here in local env
 
         return pipeline;
+    }
+
+    static class SelectTitleFn extends DoFn<PortfolioCompany, String> {
+        @ProcessElement
+        public void processElement(ProcessContext c) {
+            c.output(c.element().title());
+        }
+    }
+
+    static class FilterBySideInputFn extends DoFn<String, String> {
+        @ProcessElement
+        public void processElement(ProcessContext c, @Element String org, @SideInput("titleFilterView") List<String> titleFilterView) {
+            Organization o = new Gson().fromJson(org, Organization.class);
+            /* TODO Better with case insensitive match? */
+            if (titleFilterView.contains(o.name())) {
+                c.output(org);
+            }
+        }
     }
 }
