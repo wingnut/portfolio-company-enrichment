@@ -11,6 +11,7 @@ import org.apache.beam.sdk.values.PCollectionView;
 import org.apache.beam.sdk.values.TypeDescriptors;
 import se.wingnut.eqt.domain.Organization;
 import se.wingnut.eqt.domain.PortfolioCompany;
+import se.wingnut.eqt.pipeline.fn.*;
 
 import java.util.List;
 

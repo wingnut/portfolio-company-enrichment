@@ -1,4 +1,4 @@
-package se.wingnut.eqt.pipeline;
+package se.wingnut.eqt.pipeline.fn;
 
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.values.KV;

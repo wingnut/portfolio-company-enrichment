@@ -1,4 +1,4 @@
-package se.wingnut.eqt.pipeline;
+package se.wingnut.eqt.pipeline.fn;
 
 import com.google.gson.Gson;
 import org.apache.beam.sdk.transforms.DoFn;
