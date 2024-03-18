@@ -1,17 +1,41 @@
-package se.wingnut.eqt;
+package se.wingnut.eqt.pipeline;
 
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.Compression;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import se.wingnut.eqt.pipeline.EnrichPortfolioCompaniesPipelineFactory;
-import se.wingnut.eqt.pipeline.PipelineCfg;
+import se.wingnut.eqt.JsonFileComparator;
 import se.wingnut.eqt.util.Downloader;
 import se.wingnut.eqt.util.UrlFilePair;
+
+import java.io.IOException;
 
 import static se.wingnut.eqt.EqtApp.*;
 
 public class EnrichmentPipelineTest {
+
+    /**
+     * Here we test the pipeline e2e and verify the output against a known static subset of the prod data.
+     * @throws IOException
+     */
+    @Test
+    void enrich() throws IOException {
+        PipelineCfg cfg = new PipelineCfg(
+                new PipelineCfg.PipelineFile("src/test/resources/enrich/portfolio-companies-short.json", Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile("not-used", Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile("not-used", Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile("not used", Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile("src/test/resources/enrich/organizations-reference-data-short.json", Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile("src/test/resources/output/final-enriched-data.json", Compression.UNCOMPRESSED)
+        );
+
+        Pipeline pipeline = new EnrichPortfolioCompaniesPipelineFactory().createPipeline(cfg);
+        pipeline.run().waitUntilFinish();
+
+        // Verify output is as expected
+        Assertions.assertTrue(JsonFileComparator.hasSameData("src/test/resources/enrich/expected-final-enriched-data.json", "src/test/resources/output/final-enriched-data.json"));
+    }
 
     @Disabled("For testing purposes we sometimes want to download the files first, but if they are already downloaded we can skip this part")
     @Test
@@ -25,9 +49,9 @@ public class EnrichmentPipelineTest {
         });
     }
 
-    @Disabled()
+    @Disabled("Can be used to run the enrichment pipeline from a test rather than via the main method. Disabled here as the cfg is using prod files which are too large to serve as a unit test")
     @Test
-    void enrich() {
+    void enrichProdData() {
         PipelineCfg cfg = new PipelineCfg(
                 new PipelineCfg.PipelineFile(PORTFOLIO_FROM_WEB, Compression.UNCOMPRESSED),
                 new PipelineCfg.PipelineFile(DIVESTMENTS_FROM_WEB, Compression.UNCOMPRESSED),
@@ -40,4 +64,5 @@ public class EnrichmentPipelineTest {
         Pipeline pipeline = new EnrichPortfolioCompaniesPipelineFactory().createPipeline(cfg);
         pipeline.run().waitUntilFinish();
     }
+
 }

@@ -19,7 +19,7 @@ public class PortfolioCompanyToJsonFn extends SimpleFunction<KV<String, KV<Portf
                 pc._id(),
                 pc.country(),
                 pc.entryDate(),
-                pc.fund(), // TODO Enrich with Funds at the next step
+                pc.fund(), // TODO Enrich with additional funds data at the next step?
                 pc.path(),
                 pc.promotedSdg(),
                 pc.sdg(),
