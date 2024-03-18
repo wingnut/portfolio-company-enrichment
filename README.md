@@ -17,8 +17,7 @@ java -jar target/portfolio-company-enrichment-1.0-SNAPSHOT-jar-with-dependencies
 - [X] Run with real full dataset to spot any outliers
 
 - [ ] Download "divestment" companies too and concatenate with portfolio companies
-  - Use a flag for divestment or separate record?
-  - NOTE: one extra field: exitDate
+  - Either use discriminator columns for divestment or separate record, only one extra field for divestments vs portfolio companies
 
 - [ ] Download compressed funds reference data and use as enrichment for funds list in portfolio company
   - Also enrich with stuff from each individual fund page??? Seems like overkill.
@@ -30,7 +29,9 @@ java -jar target/portfolio-company-enrichment-1.0-SNAPSHOT-jar-with-dependencies
 - Upload resulting file to a GCP bucket
 - Dockerize the app
 - Set up infrastructure to run using AirFlow?
-- Use some sort of Named-entity recognition (NER) for resolving the join. Right now relying on title == name is risky. Best (of course) would be to make the service exposing the uuid for the portfolio company in the JSON. That way the join could be done more naturally and safer using the uuid in both datasets.
+- Alternatives for resolving the join:
+  - Use some sort of Named-entity recognition (NER). Right now relying on title == name is risky. Best (of course) would be to make the service exposing the uuid for the portfolio company in the JSON. That way the join could be done more naturally and safer using the uuid in both datasets. NER-services typically means additional costs.
+  - Use some sort of fuzzy search/match
 
 #### Some examples where the data quality will bleed over to the final enriched data set
 - The "Magnit" company appears with the same title more than once in the reference dataset for orgs, this makes it the join non-deterministic
