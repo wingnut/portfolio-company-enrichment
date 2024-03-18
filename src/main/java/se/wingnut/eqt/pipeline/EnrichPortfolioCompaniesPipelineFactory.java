@@ -16,23 +16,25 @@ import se.wingnut.eqt.domain.PortfolioCompany;
 import java.util.List;
 
 public class EnrichPortfolioCompaniesPipelineFactory {
+    // Holds the path to navigate down in the api call on the EQT website for fetching portfolio companies
     private static final String PATH = "$.result.data.allSanityCompanyPage.nodes";
 
     private static final Organization DEFAULT_ORGANIZATION = new Organization(null, null, null, null, null, null, null, null, null, null, null);
 
     /**
-     * Variation for using test files that may be shorter and/or compressed/uncompressed
+     * @param cfg The configuration to use for filenames etc
      * @return The pipeline ready for running
      */
     public Pipeline createPipeline(PipelineCfg cfg) {
         Pipeline pipeline = Pipeline.create();
 
-        PCollection<String> jsonString = pipeline.apply("Read JSON containing portfolio companies",
-                TextIO.read().from(cfg.portfolioFromWeb().url())
-                        .withCompression(cfg.portfolioFromWeb().compression()));
 
-        PCollection<PortfolioCompany> portfolioCompaniesFromWeb = jsonString
-                .apply("Extract with JsonPath", ParDo.of(new ExtractPortfolioCompanyElementsFromPathDoFn(PATH)));
+        PCollection<PortfolioCompany> portfolioCompaniesFromWeb = pipeline
+                .apply("Read JSON containing portfolio companies",
+                        TextIO.read().from(cfg.portfolioFromWeb().url())
+                                .withCompression(cfg.portfolioFromWeb().compression()))
+                .apply("Extract with JsonPath",
+                        ParDo.of(new ExtractPortfolioCompanyElementsFromPathDoFn(PATH)));
 
         // Filter orgs and keep only the orgs in the portfolio (the orgs data is too big to fit in memory for a normal PC)
         PCollection<String> titles = portfolioCompaniesFromWeb.apply("Select Title",
