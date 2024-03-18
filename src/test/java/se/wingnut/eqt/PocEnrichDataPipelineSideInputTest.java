@@ -8,6 +8,7 @@ import org.apache.beam.sdk.transforms.*;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionView;
 import org.apache.beam.sdk.values.TypeDescriptors;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -19,7 +20,7 @@ import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class EnrichDataPipelineSideInputTest {
+public class PocEnrichDataPipelineSideInputTest {
 
     record MainData(String id, String name) implements Serializable {
     }
@@ -30,6 +31,7 @@ public class EnrichDataPipelineSideInputTest {
     record EnrichedData(String id, String name, String phone) implements Serializable {
     }
 
+    @Disabled("This tests is more of a PoC, run manually if needed")
     @Test
     void enrich() throws IOException {
         Pipeline pipeline = Pipeline.create();

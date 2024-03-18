@@ -9,6 +9,7 @@ import org.apache.beam.sdk.transforms.*;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TypeDescriptors;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // Assuming you have classes for User, Transaction, JoinedData
 
-public class EnrichDataPipelineJoinTest {
+public class PocEnrichDataPipelineJoinTest {
 
     interface HasId {
         String getId();
@@ -45,6 +46,7 @@ public class EnrichDataPipelineJoinTest {
         }
     }
 
+    @Disabled("This tests is more of a PoC, run manually if needed")
     @Test
     void enrich() throws IOException {
         Pipeline pipeline = Pipeline.create();

@@ -70,12 +70,11 @@ public class EnrichPortfolioCompaniesPipelineFactory {
                 .apply("Parse organizations from JSON strings",
                         ParDo.of(new ParseJsonFn<>(Organization.class))).setCoder(SerializableCoder.of(Organization.class));
 
-        // Key portfolio companies the join column
         PCollection<KV<String, PortfolioCompany>> keyedPortfolioCompanies = portfolioCompaniesFromWeb
-                .apply("Key PortfolioCompany by join column: title", ParDo.of(new KeyFn<>()));
+                .apply("Key PortfolioCompany by join column: title", ParDo.of(new LowerCaseKeyFn<>()));
 
         PCollection<KV<String, Organization>> keyedOrganizations = additionalOrganizationDataFromGCP
-                .apply("Key Organization by join column: name", ParDo.of(new KeyFn<>()));
+                .apply("Key Organization by join column: name", ParDo.of(new LowerCaseKeyFn<>()));
 
         // leftOuterJoin since we want to keep all portfolio companies even if they have no additional organization data to enrich with
         PCollection<KV<String, KV<PortfolioCompany, Organization>>> enrichedPortfolioCompanies = Join.leftOuterJoin(keyedPortfolioCompanies, keyedOrganizations, DEFAULT_ORGANIZATION);
@@ -93,7 +92,7 @@ public class EnrichPortfolioCompaniesPipelineFactory {
     static class SelectTitleFn extends DoFn<PortfolioCompany, String> {
         @ProcessElement
         public void processElement(ProcessContext c) {
-            c.output(c.element().title());
+            c.output(c.element().title().toLowerCase());
         }
     }
 
@@ -101,8 +100,8 @@ public class EnrichPortfolioCompaniesPipelineFactory {
         @ProcessElement
         public void processElement(ProcessContext c, @Element String org, @SideInput("titleFilterView") List<String> titleFilterView) {
             Organization o = new Gson().fromJson(org, Organization.class);
-            /* TODO Better with case insensitive match? */
-            if (titleFilterView.contains(o.name())) {
+            // No guarantees but better overall success rate using case-insensitive matching
+            if (titleFilterView.contains(o.name().toLowerCase())) {
                 c.output(org);
             }
         }
