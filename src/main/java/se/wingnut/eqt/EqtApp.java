@@ -31,6 +31,7 @@ public class EqtApp {
             });
 
             // Decompress the compressed files
+            // TODO Parallelize if memory allows...
             Decompressor d = new Decompressor();
             d.decompress(ENRICHMENT_FUNDS_FROM_GCP, ENRICHMENT_FUNDS_FROM_GCP_UNCOMPRESSED);
             d.decompress(ENRICHMENT_ORGS_FROM_GCP, ENRICHMENT_ORGS_FROM_GCP_UNCOMPRESSED);
@@ -49,8 +50,8 @@ public class EqtApp {
         );
 
         Pipeline pipeline = new EnrichPortfolioCompaniesPipelineFactory().createPipeline(cfg);
-        System.out.println("Starting enrichment pipeline");
+        System.out.println("Starting enrichment pipeline, expect to wait for a minute or two");
         pipeline.run().waitUntilFinish();
-        System.out.println("Enrichment pipeline finished, check: " + cfg.finalEnrichedPortfolioCompaniesFile().url() + ".gz" + " for the result. Depending on if the cfg is to zip the output file or not, it will have different suffixes: .json or .json.gz");
+        System.out.println("Enrichment pipeline finished, check: " + cfg.finalEnrichedPortfolioCompaniesFile().url() + ".gz" + " for the result (if running with compression for the output file, .json only o/w).");
     }
 }

@@ -65,7 +65,8 @@ public class EnrichPortfolioCompaniesPipelineFactory {
 
         // This is the real enrichment part of the pipeline, everything so far has been building up the data to make this happen
         PCollection<EnrichedPortfolioCompany> enrichedPortfolioCompanies = portfolioCompanyOrganizationPairs
-                .apply("Create the enriched domain object from the parts", ParDo.of(new EnrichPortfolioCompaniesFn()));
+                .apply("Create the enriched domain object from the parts",
+                        ParDo.of(new EnrichPortfolioCompaniesFn()));
 
         enrichedPortfolioCompanies.apply("Serialize records back into JSON",
                         MapElements.into(TypeDescriptors.strings())

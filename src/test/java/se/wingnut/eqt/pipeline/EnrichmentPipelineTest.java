@@ -17,7 +17,8 @@ public class EnrichmentPipelineTest {
 
     /**
      * Here we test the pipeline e2e and verify the output against a known static subset of the prod data.
-     * @throws IOException
+     * NOTE: This will cause actual calls to GET additional fund data, so it depends on the EQT website being up.
+     * In a real life scenario, I'd have spent time on setting up a mock website to emulate EQT.
      */
     @Test
     void enrich() throws IOException {

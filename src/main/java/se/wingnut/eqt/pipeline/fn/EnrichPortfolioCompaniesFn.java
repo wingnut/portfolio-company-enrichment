@@ -3,21 +3,55 @@ package se.wingnut.eqt.pipeline.fn;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.values.KV;
 import se.wingnut.eqt.domain.EnrichedPortfolioCompany;
+import se.wingnut.eqt.domain.FundData;
 import se.wingnut.eqt.domain.Organization;
 import se.wingnut.eqt.domain.PortfolioCompany;
+import se.wingnut.eqt.http.SimpleRestClient;
+import se.wingnut.eqt.http.fund.Data;
+import se.wingnut.eqt.http.fund.FundResponse;
+import se.wingnut.eqt.http.fund.Result;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class EnrichPortfolioCompaniesFn extends DoFn<KV<String, KV<PortfolioCompany, Organization>>, EnrichedPortfolioCompany> {
+    public final static String FUND_DETAILS_REST_ENDPOINT = "https://eqtgroup.com/page-data%spage-data.json";
+    private final static FundData DEFAULT_FUND_DATA = new FundData(null, null, null, null, null, null, null, null, null, null);
+
+    SimpleRestClient restClient = new SimpleRestClient();
+
+    // Primarily for testing/mocking as the rest client otherwise must be serializable
+    void setRestClient(SimpleRestClient restClient) {
+        this.restClient = restClient;
+    }
+
     @ProcessElement
     public void processElement(ProcessContext ctx) {
         KV<String, KV<PortfolioCompany, Organization>> pair = ctx.element();
         PortfolioCompany pc = pair.getValue().getKey();
         Organization o = pair.getValue().getValue();
 
+        // TODO, there's likely a benefit from caching these calls as there's a 1:N relationship between fund and org
+
+        // Enrich via separate calls to the fund web scrape/rest api
+        // NOTE: If this was Java 21, we could rely on virtual threads here and just spawn new threads for the I/O this causes.
+        // However, in Java 17 they're not available and since the DirectRunner is already parallelizing the work, I've skipped the fork/join here.
+        List<FundData> fundData = pc.fund().stream()
+                .map(fund -> {
+                    String path = fund.path();
+                    if (path != null && !path.isEmpty()) {
+                        return restClient.get(FUND_DETAILS_REST_ENDPOINT.formatted(fund.path()), FundResponse.class);
+                    } else {
+                        return new FundResponse(new Result(new Data(DEFAULT_FUND_DATA)));
+                    }
+                })
+                .map(r -> r.result().data().sanityFund())
+                .collect(Collectors.toList());
+
         EnrichedPortfolioCompany epc = new EnrichedPortfolioCompany(
                 pc._id(),
                 pc.country(),
                 pc.entryDate(),
-                pc.fund(), // TODO Enrich with additional funds data at the next step?
                 pc.path(),
                 pc.promotedSdg(),
                 pc.sdg(),
@@ -37,7 +71,9 @@ public class EnrichPortfolioCompaniesFn extends DoFn<KV<String, KV<PortfolioComp
                         o.num_funding_rounds(),
                         o.last_funding_on(),
                         o.total_funding_usd()
-                )
+                ),
+                // Enriching with the fund data from the fund details page
+                fundData
         );
 
         ctx.output(epc);

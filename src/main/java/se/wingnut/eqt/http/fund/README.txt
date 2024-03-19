@@ -1,0 +1,2 @@
+These dumb container records are only here to let us easily/type-safely navigate down the response json to the actual fund data we're after.
+Consider adding more fields to them if more data is needed in the enriched output by whoever is responsible for the requirements.

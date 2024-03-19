@@ -8,7 +8,6 @@ public record EnrichedPortfolioCompany(
         String _id,
         String country,
         String entryDate,
-        List<Fund> fund,
         String path,
         String promotedSdg,
         List<SDG> sdg,
@@ -16,4 +15,5 @@ public record EnrichedPortfolioCompany(
         String title,
         String topic,
         // To be added when enriching
-        Organization organizationData) implements Serializable {}
+        Organization organizationData,
+        List<FundData> fundData) implements Serializable {}
