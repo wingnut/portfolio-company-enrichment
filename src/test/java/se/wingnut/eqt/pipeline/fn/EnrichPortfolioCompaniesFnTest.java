@@ -35,10 +35,18 @@ public class EnrichPortfolioCompaniesFnTest {
     Organization org = new Organization("123", "My Company", null, null, null, null, null, null, null, null, null);
     FundData eqtGrowth = new FundData("/current-portfolio/funds/eqt-growth/", "EQT Growth", null, null, null, null, null, null, null, null);
     FundData eqtIX = new FundData("/current-portfolio/funds/eqt-ix/", "EQT IX", null, null, null, null, null, null, null, null);
+    FundData eqtGrowthWithoutPath = new FundData("", "EQT Growth", null, null, null, null, null, null, null, null);
+    FundData eqtIXWithoutPath = new FundData(null, "EQT IX", null, null, null, null, null, null, null, null);
     List<FundData> fundData = List.of(eqtGrowth, eqtIX);
+    List<FundData> fundDataWithoutPaths = List.of(eqtGrowthWithoutPath, eqtIXWithoutPath);
+
     EnrichedPortfolioCompany epc = new EnrichedPortfolioCompany(null, null, null, null, null, null, null, "My Company", null,
             new Organization("123", "My Company", null, null, null, null, null, null, null, null, null),
             fundData);
+
+    EnrichedPortfolioCompany epcWithoutFundPaths = new EnrichedPortfolioCompany(null, null, null, null, null, null, null, "My Company", null,
+            new Organization("123", "My Company", null, null, null, null, null, null, null, null, null),
+            fundDataWithoutPaths);
 
     KV<String, KV<PortfolioCompany, Organization>> pair = KV.of("My Company", KV.of(pc, org));
 
@@ -54,6 +62,20 @@ public class EnrichPortfolioCompaniesFnTest {
         fn.setRestClient(mockRestClient);
         fn.processElement(mockCtx);
         verify(mockCtx).output(epc);
+    }
+
+    @Test
+    void processElement_EnrichPortfolioCompany_fundWithoutPath() {
+        when(mockCtx.element()).thenReturn(pair);
+        when(mockRestClient.get("https://eqtgroup.com/page-data/current-portfolio/funds/eqt-growth/page-data.json", FundResponse.class))
+                .thenReturn(new FundResponse(new Result(new Data(eqtGrowthWithoutPath))));
+        when(mockRestClient.get("https://eqtgroup.com/page-data/current-portfolio/funds/eqt-ix/page-data.json", FundResponse.class))
+                .thenReturn(new FundResponse(new Result(new Data(eqtIXWithoutPath))));
+
+        EnrichPortfolioCompaniesFn fn = new EnrichPortfolioCompaniesFn();
+        fn.setRestClient(mockRestClient);
+        fn.processElement(mockCtx);
+        verify(mockCtx).output(epcWithoutFundPaths);
     }
 
 }

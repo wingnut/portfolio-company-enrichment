@@ -16,11 +16,13 @@ import java.util.stream.Collectors;
 
 public class EnrichPortfolioCompaniesFn extends DoFn<KV<String, KV<PortfolioCompany, Organization>>, EnrichedPortfolioCompany> {
     public final static String FUND_DETAILS_REST_ENDPOINT = "https://eqtgroup.com/page-data%spage-data.json";
-    private final static FundData DEFAULT_FUND_DATA = new FundData(null, null, null, null, null, null, null, null, null, null);
+    public final static String ORG_DETAILS_REST_ENDPOINT = "https://eqtgroup.com/page-data%spage-data.json";
 
+    // This client can likely be reused, rather than created as here in the demo code.
+    // Think Inversion of Control aka Dependecy Injection...
     SimpleRestClient restClient = new SimpleRestClient();
 
-    // Primarily for testing/mocking as the rest client otherwise must be serializable
+    // Primarily for testing/mocking
     void setRestClient(SimpleRestClient restClient) {
         this.restClient = restClient;
     }
@@ -42,7 +44,9 @@ public class EnrichPortfolioCompaniesFn extends DoFn<KV<String, KV<PortfolioComp
                     if (path != null && !path.isEmpty()) {
                         return restClient.get(FUND_DETAILS_REST_ENDPOINT.formatted(fund.path()), FundResponse.class);
                     } else {
-                        return new FundResponse(new Result(new Data(DEFAULT_FUND_DATA)));
+                        return new FundResponse(new Result(new Data(new FundData(
+                                null, fund.title(), null, null, null, null, null, null, null,null
+                        ))));
                     }
                 })
                 .map(r -> r.result().data().sanityFund())
