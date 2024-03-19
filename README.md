@@ -13,7 +13,10 @@ cd portfolio-company-enrichment
 ```
 
 ### (Java 17 and >= 4G RAM is required)
-<span style="color:red">Java 17 is required</span> Tip: Use https://sdkman.io/ for installing multiple java versions and switching between them with ease.
+<span style="color:red">Java 17 is required</span>
+
+Tip: Use https://sdkman.io/ for installing multiple java versions and switching between them with ease.
+
 Verify that JAVA_HOME is really pointing to a Java 17 binary: `echo $JAVA_HOME`.
 
 AND/OR
