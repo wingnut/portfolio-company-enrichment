@@ -1,5 +1,6 @@
 package se.wingnut.eqt.pipeline;
 
+import com.google.gson.Gson;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.extensions.joinlibrary.Join;
@@ -9,6 +10,7 @@ import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionView;
 import org.apache.beam.sdk.values.TypeDescriptors;
+import se.wingnut.eqt.domain.EnrichedPortfolioCompany;
 import se.wingnut.eqt.domain.Organization;
 import se.wingnut.eqt.domain.PortfolioCompany;
 import se.wingnut.eqt.pipeline.fn.*;
@@ -27,7 +29,6 @@ public class EnrichPortfolioCompaniesPipelineFactory {
      */
     public Pipeline createPipeline(PipelineCfg cfg) {
         Pipeline pipeline = Pipeline.create();
-
 
         PCollection<PortfolioCompany> portfolioCompaniesFromWeb = pipeline
                 .apply("Read JSON containing portfolio companies",
@@ -60,11 +61,15 @@ public class EnrichPortfolioCompaniesPipelineFactory {
                 .apply("Key Organization by join column: name", ParDo.of(new LowerCaseKeyFn<>()));
 
         // leftOuterJoin since we want to keep all portfolio companies even if they have no additional organization data to enrich with
-        PCollection<KV<String, KV<PortfolioCompany, Organization>>> enrichedPortfolioCompanies = Join.leftOuterJoin(keyedPortfolioCompanies, keyedOrganizations, DEFAULT_ORGANIZATION);
+        PCollection<KV<String, KV<PortfolioCompany, Organization>>> portfolioCompanyOrganizationPairs = Join.leftOuterJoin(keyedPortfolioCompanies, keyedOrganizations, DEFAULT_ORGANIZATION);
+
+        // This is the real enrichment part of the pipeline, everything so far has been building up the data to make this happen
+        PCollection<EnrichedPortfolioCompany> enrichedPortfolioCompanies = portfolioCompanyOrganizationPairs
+                .apply("Create the enriched domain object from the parts", ParDo.of(new EnrichPortfolioCompaniesFn()));
 
         enrichedPortfolioCompanies.apply("Serialize records back into JSON",
                         MapElements.into(TypeDescriptors.strings())
-                                .via((SerializableFunction<KV<String, KV<PortfolioCompany, Organization>>, String>) new PortfolioCompanyToJsonFn()))
+                                .via(enrichedPortfolioCompany -> new Gson().toJson(enrichedPortfolioCompany)))
                 .apply("Write JSON to resulting file and compress",
                         TextIO.write().to(cfg.finalEnrichedPortfolioCompaniesFile().url())
                                 .withCompression(cfg.finalEnrichedPortfolioCompaniesFile().compression())
