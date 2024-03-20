@@ -71,7 +71,7 @@ If ran in a real infrastructure, this would not be a problem. When loading the l
 - Upload resulting file to a GCP bucket
 - Dockerize the app
 - Set up infrastructure to run using AirFlow?
-- **Some alternatives for resolving the join between Portfolio Company and Organization**:
+- **Some alternatives for resolving the join (that currently produces duplicates) between Portfolio Company and Organization**:
   - Use more than one field for joining (equivalent of SQL composite key)
   - Use some sort of Named-entity recognition (NER). Right now relying on: `portfoliocompany.title.toLowerCase == org.name.toLowerCase`, which is risky. Best (of course) would be to make the service exposing the uuid for the portfolio company in the JSON. That way the join could be done more naturally and safer using the uuid in both datasets. NER-services typically means additional costs.
   - Use some sort of fuzzy search/match
