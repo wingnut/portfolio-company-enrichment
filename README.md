@@ -1,6 +1,7 @@
 # EQT Code Test - Michael Mrazek
 
 # TL;DR
+<span style="color:red">Tested on **macOS Sonoma** and **Java 17** only</span>
 
 ### Clone the repo
 ```
