@@ -67,6 +67,7 @@ If ran in a real infrastructure, this would not be a problem. When loading the l
 - [X] Download all files in parallel in main() before creating and running pipeline
 - [X] Filter org enrichment data first to only include the orgs in the portfolio (for memory reasons)
 - [X] Download "divestment" companies too and concatenate with portfolio companies (via discriminator column)
+- [ ] Reduce code bloat for Java records by adding them as static records inside the relevant records (typically there's a bunch of records needed only for traversing json)
 - [ ] PERFORMANCE No profiling etc has been done, and I'm (as an example) creating new Gson parsers quite frivolously. But this is meant as a functional demo and I wanted to keep it simple.
 
 ## Next steps/thoughts for a real production pipeline
