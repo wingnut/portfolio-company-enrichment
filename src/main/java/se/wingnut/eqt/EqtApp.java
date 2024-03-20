@@ -50,7 +50,7 @@ public class EqtApp {
         );
 
         Pipeline pipeline = new EnrichPortfolioCompaniesPipelineFactory().createPipeline(cfg);
-        System.out.println("Starting enrichment pipeline, expect to wait for a minute or two");
+        System.out.println("Starting enrichment pipeline, expect to wait for a few minutes");
         pipeline.run().waitUntilFinish();
         System.out.println("Enrichment pipeline finished, check: " + cfg.finalEnrichedPortfolioCompaniesFile().url() + ".gz" + " for the result (if running with compression for the output file, .json only o/w).");
     }
