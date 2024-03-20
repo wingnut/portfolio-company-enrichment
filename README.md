@@ -61,8 +61,7 @@ If ran in a real infrastructure, this would not be a problem. When loading the l
 ### Improvements
 - [X] Download all files in parallel in main() before creating and running pipeline
 - [X] Filter org enrichment data first to only include the orgs in the portfolio (for memory reasons)
-- [ ] Download "divestment" companies too and concatenate with portfolio companies
-  - Either use "discriminator column" for divestment or separate record, only one extra field for divestments vs portfolio companies
+- [X] Download "divestment" companies too and concatenate with portfolio companies (via discriminator column)
 - [ ] PERFORMANCE No profiling etc has been done, and I'm (as an example) creating new Gson parsers quite frivolously. But this is meant as a functional demo and I wanted to keep it simple.
 
 ## Next steps/thoughts for a real production pipeline
