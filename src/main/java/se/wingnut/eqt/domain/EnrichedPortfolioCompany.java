@@ -1,5 +1,7 @@
 package se.wingnut.eqt.domain;
 
+import se.wingnut.eqt.domain.pc.PortfolioCompanyData;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -16,4 +18,5 @@ public record EnrichedPortfolioCompany(
         String topic,
         // To be added when enriching
         Organization organizationData,
+        PortfolioCompanyData organisationDetails,
         List<FundData> fundData) implements Serializable {}

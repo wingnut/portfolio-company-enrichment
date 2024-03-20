@@ -1,3 +1,3 @@
 The full details response contains a lot more than what we need...
-These dumb container records are only here to let us easily/type-safely navigate down the response json to the actual data we're after.
+These dumb container records are only here to let us easily/type-safely navigate down the response json to the actual portfolio company data we're after.
 Consider adding more fields to them if more data is needed in the enriched output by whoever is responsible for the requirements.

@@ -1,4 +1,4 @@
-package se.wingnut.eqt.http.fund;
+package se.wingnut.eqt.http.pc;
 
 import java.io.Serializable;
 
