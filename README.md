@@ -1,6 +1,11 @@
 # EQT Code Test - Michael Mrazek
 
 # TL;DR
+The final enriched compressed dataset can be found under the project root and has the name:
+
+`final-enriched-portfolio-companies.json.gz`
+
+## To reproduce
 <span style="color:red">Tested on **macOS Sonoma** and **Java 17** only</span>
 
 ### Clone the repo
