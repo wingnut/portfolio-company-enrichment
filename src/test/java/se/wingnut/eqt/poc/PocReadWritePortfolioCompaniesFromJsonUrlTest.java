@@ -1,4 +1,4 @@
-package se.wingnut.eqt;
+package se.wingnut.eqt.poc;
 
 
 import com.google.gson.Gson;

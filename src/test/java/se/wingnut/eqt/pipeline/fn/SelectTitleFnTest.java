@@ -15,6 +15,8 @@ public class SelectTitleFnTest {
     @Mock DoFn.ProcessContext mockPC;
 
     PortfolioCompany portfolioCompany = new PortfolioCompany(
+            "false",
+            null,
             null,
             null,
             null,

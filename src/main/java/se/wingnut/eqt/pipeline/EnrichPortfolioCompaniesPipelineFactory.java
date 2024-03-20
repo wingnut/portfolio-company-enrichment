@@ -6,10 +6,7 @@ import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.extensions.joinlibrary.Join;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.transforms.*;
-import org.apache.beam.sdk.values.KV;
-import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.PCollectionView;
-import org.apache.beam.sdk.values.TypeDescriptors;
+import org.apache.beam.sdk.values.*;
 import se.wingnut.eqt.domain.EnrichedPortfolioCompany;
 import se.wingnut.eqt.domain.Organization;
 import se.wingnut.eqt.domain.PortfolioCompany;
@@ -35,10 +32,24 @@ public class EnrichPortfolioCompaniesPipelineFactory {
                         TextIO.read().from(cfg.portfolioFromWeb().url())
                                 .withCompression(cfg.portfolioFromWeb().compression()))
                 .apply("Extract with JsonPath",
-                        ParDo.of(new ExtractPortfolioCompanyElementsFromPathDoFn(PATH)));
+                        ParDo.of(new ExtractPortfolioCompanyElementsFromPathDoFn(PATH)))
+                .apply("Add discriminator column value (portfoliocompany or divestment)",
+                        ParDo.of(new AddDiscriminatorValueFn("false")));
+
+        PCollection<PortfolioCompany> divestmentsFromWeb = pipeline
+                .apply("Read JSON containing divestments",
+                        TextIO.read().from(cfg.divestmentsFromWeb().url())
+                                .withCompression(cfg.divestmentsFromWeb().compression()))
+                .apply("Extract with JsonPath",
+                        ParDo.of(new ExtractPortfolioCompanyElementsFromPathDoFn(PATH)))
+                .apply("Add discriminator column value (portfoliocompany or divestment)",
+                        ParDo.of(new AddDiscriminatorValueFn("true")));
+
+        PCollection<PortfolioCompany> allPortfolioCompaniesFromWeb = PCollectionList.of(portfolioCompaniesFromWeb).and(divestmentsFromWeb)
+                .apply(Flatten.pCollections());
 
         // Filter orgs and keep only the orgs in the portfolio (the orgs data is too big to fit in memory for a normal PC)
-        PCollection<String> titles = portfolioCompaniesFromWeb.apply("Select Title",
+        PCollection<String> titles = allPortfolioCompaniesFromWeb.apply("Select Title",
                 ParDo.of(new SelectTitleFn()));
         // Create a PCollectionView from filterIds
         PCollectionView<List<String>> titleFilterView = titles.apply(View.asList());
@@ -54,7 +65,7 @@ public class EnrichPortfolioCompaniesPipelineFactory {
                 .apply("Parse organizations from JSON strings",
                         ParDo.of(new ParseJsonFn<>(Organization.class))).setCoder(SerializableCoder.of(Organization.class));
 
-        PCollection<KV<String, PortfolioCompany>> keyedPortfolioCompanies = portfolioCompaniesFromWeb
+        PCollection<KV<String, PortfolioCompany>> keyedPortfolioCompanies = allPortfolioCompaniesFromWeb
                 .apply("Key PortfolioCompany by join column: title", ParDo.of(new LowerCaseKeyFn<>()));
 
         PCollection<KV<String, Organization>> keyedOrganizations = additionalOrganizationDataFromGCP

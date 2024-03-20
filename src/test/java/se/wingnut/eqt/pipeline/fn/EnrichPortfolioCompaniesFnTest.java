@@ -28,7 +28,7 @@ public class EnrichPortfolioCompaniesFnTest {
 
     // Could really use some "wither" functions with all these parameters in the constructor. Or use a builder pattern.
     // https://mail.openjdk.org/pipermail/amber-spec-experts/2022-June/003461.html
-    PortfolioCompany pc = new PortfolioCompany(null, null, null,
+    PortfolioCompany pc = new PortfolioCompany("true", null, null, null, "2021-03-01",
             List.of(
                     new Fund("/current-portfolio/funds/eqt-growth/", "EQT Growth"),
                     new Fund("/current-portfolio/funds/eqt-ix/", "EQT IX")
@@ -50,7 +50,7 @@ public class EnrichPortfolioCompaniesFnTest {
     List<FundData> fundData = List.of(eqtGrowth, eqtIX);
     List<FundData> fundDataWithoutPaths = List.of(eqtGrowthWithoutPath, eqtIXWithoutPath);
 
-    EnrichedPortfolioCompany epc = new EnrichedPortfolioCompany(null, null, null, "/current-portfolio/my-company/", null, null, null, "My Company", null,
+    EnrichedPortfolioCompany epc = new EnrichedPortfolioCompany("true", null,  null, null, "2021-03-01", "/current-portfolio/my-company/", null, null, null, "My Company", null,
             new Organization("123", "My Company", null, null, null, null, null, null, null, null, null),
             new PortfolioCompanyData(
                     new Slug("my-company"),
@@ -60,7 +60,7 @@ public class EnrichPortfolioCompaniesFnTest {
             fundData
     );
 
-    EnrichedPortfolioCompany epcWithoutFundPaths = new EnrichedPortfolioCompany(null, null, null, "/current-portfolio/my-company/", null, null, null, "My Company", null,
+    EnrichedPortfolioCompany epcWithoutFundPaths = new EnrichedPortfolioCompany("true", null, null, null, "2021-03-01", "/current-portfolio/my-company/", null, null, null, "My Company", null,
             new Organization("123", "My Company", null, null, null, null, null, null, null, null, null),
             new PortfolioCompanyData(
                     new Slug("my-company"),

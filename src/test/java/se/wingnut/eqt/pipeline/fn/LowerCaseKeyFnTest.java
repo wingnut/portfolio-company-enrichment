@@ -17,7 +17,7 @@ public class LowerCaseKeyFnTest {
     @Mock DoFn.ProcessContext mockPC;
 
     Organization organization = new Organization(null, "My Company", null, null, null, null, null, null, null, null, null);
-    PortfolioCompany portfolioCompany = new PortfolioCompany(null, null, null, null, null, null, null, null, "My Company", null, null);
+    PortfolioCompany portfolioCompany = new PortfolioCompany("false", null, null,null, null, null, null,null, null, null, "My Company", null, null);
 
     @Test
     void processElement_Organization() {

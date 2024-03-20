@@ -1,4 +1,4 @@
-package se.wingnut.eqt;
+package se.wingnut.eqt.poc;
 
 import com.google.gson.Gson;
 import org.apache.beam.sdk.Pipeline;
@@ -9,13 +9,13 @@ import org.apache.beam.sdk.transforms.*;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TypeDescriptors;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import se.wingnut.eqt.JsonFileComparator;
 
 import java.io.IOException;
 import java.io.Serializable;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // Assuming you have classes for User, Transaction, JoinedData
 
@@ -84,7 +84,7 @@ public class PocEnrichDataPipelineJoinTest {
 
         pipeline.run().waitUntilFinish();
 
-        assertTrue(JsonFileComparator.hasSameData("src/test/resources/enrich/expected.json", "src/test/resources/output/joined.json"));
+        Assertions.assertTrue(JsonFileComparator.hasSameData("src/test/resources/enrich/expected.json", "src/test/resources/output/joined.json"));
     }
 
     static class ParseJsonFn<T> extends DoFn<String, T> {

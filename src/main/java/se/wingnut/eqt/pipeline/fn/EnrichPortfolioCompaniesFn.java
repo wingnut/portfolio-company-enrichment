@@ -49,9 +49,11 @@ public class EnrichPortfolioCompaniesFn extends DoFn<KV<String, KV<PortfolioComp
         List<FundData> fundData = getFundDetails(pc);
 
         EnrichedPortfolioCompany epc = new EnrichedPortfolioCompany(
+                pc.isDivestment(),
                 pc._id(),
                 pc.country(),
                 pc.entryDate(),
+                pc.exitDate(),
                 pc.path(),
                 pc.promotedSdg(),
                 pc.sdg(),

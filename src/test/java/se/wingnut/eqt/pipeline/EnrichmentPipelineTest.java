@@ -24,7 +24,7 @@ public class EnrichmentPipelineTest {
     void enrich() throws IOException {
         PipelineCfg cfg = new PipelineCfg(
                 new PipelineCfg.PipelineFile("src/test/resources/enrich/portfolio-companies-short.json", Compression.UNCOMPRESSED),
-                new PipelineCfg.PipelineFile("not-used", Compression.UNCOMPRESSED),
+                new PipelineCfg.PipelineFile("src/test/resources/enrich/divestments-short.json", Compression.UNCOMPRESSED),
                 new PipelineCfg.PipelineFile("not-used", Compression.UNCOMPRESSED),
                 new PipelineCfg.PipelineFile("not used", Compression.UNCOMPRESSED),
                 new PipelineCfg.PipelineFile("src/test/resources/enrich/organizations-reference-data-short.json", Compression.UNCOMPRESSED),

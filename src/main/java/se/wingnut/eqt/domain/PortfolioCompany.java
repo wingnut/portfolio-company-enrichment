@@ -4,9 +4,11 @@ import java.io.Serializable;
 import java.util.List;
 
 public record PortfolioCompany (
+        String isDivestment,
         String _id,
         String country,
         String entryDate,
+        String exitDate,
         List<Fund> fund,
         String path,
         String promotedSdg,

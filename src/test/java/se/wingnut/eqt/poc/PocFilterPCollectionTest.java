@@ -1,21 +1,21 @@
-package se.wingnut.eqt;
+package se.wingnut.eqt.poc;
 
 import org.apache.beam.sdk.Pipeline;
-import org.apache.beam.sdk.transforms.*;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
+import org.apache.beam.sdk.transforms.*;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionView;
 import org.apache.beam.sdk.values.TypeDescriptors;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import se.wingnut.eqt.JsonFileComparator;
 import se.wingnut.eqt.domain.Organization;
 
 import java.io.IOException;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PocFilterPCollectionTest {
 
@@ -63,7 +63,7 @@ public class PocFilterPCollectionTest {
         pipeline.run().waitUntilFinish();
 
         // Verify results
-        assertTrue(JsonFileComparator.hasSameData("src/test/resources/filter/expected.json", "src/test/resources/output/filtered-orgs.json"));
+        Assertions.assertTrue(JsonFileComparator.hasSameData("src/test/resources/filter/expected.json", "src/test/resources/output/filtered-orgs.json"));
     }
 
     static class FilterBySideInputFn extends DoFn<Organization, Organization> {

@@ -7,9 +7,11 @@ import java.util.List;
 
 public record EnrichedPortfolioCompany(
         // The first fields carry on from the original portfolio company
+        String isDivestment,
         String _id,
         String country,
         String entryDate,
+        String exitDate,
         String path,
         String promotedSdg,
         List<SDG> sdg,
