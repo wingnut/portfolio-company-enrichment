@@ -65,6 +65,11 @@ public class EnrichPortfolioCompaniesPipelineFactory {
                 .apply("Parse organizations from JSON strings",
                         ParDo.of(new ParseJsonFn<>(Organization.class))).setCoder(SerializableCoder.of(Organization.class));
 
+        // TODO Join with the fundings reference file: cfg.enrichmentFundsFromGCP().url() to get fundings for the org.
+        // In this case it works fine to join on organization uuid, so the equivalent of an SQL:
+        // FROM ORGANIZATION o LEFT OUTER JOIN FUNDING f
+        // ON o.uuid = f.org_uuid
+
         PCollection<KV<String, PortfolioCompany>> keyedPortfolioCompanies = allPortfolioCompaniesFromWeb
                 .apply("Key PortfolioCompany by join column: title", ParDo.of(new LowerCaseKeyFn<>()));
 
