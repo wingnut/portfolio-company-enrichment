@@ -78,8 +78,8 @@ If ran in a real infrastructure, this would not be a problem. When loading the l
   - Since this is an example and the data is downloaded from EQT, one could argue that the data should be provided with uuid. However, the scenario in production is likely that we are mining **other** websites (where we cannot control the api) for potential future portfolio companies, so we likely need some sort of NER functionality to make better/safer matches (perhaps with some confidence score to indicate to the consumer of our app how certain we are that we have the correct enriched data).
 
 #### Some examples where the data quality will bleed over to the final enriched data set
-- The "Magnit" company appears with the same title more than once in the reference dataset for orgs, this makes it the join non-deterministic
-- The name "Anticimex" in the web json is not consistent with the title "Anticimex AB" in the reference dataset for orgs
+- Multiple organizations with the same title in the reference dataset for orgs, (causes duplicates when joining with portfolio companies)
+- The name "Anticimex" in the portfolio companies json is not consistent with the title "Anticimex AB" in the reference dataset for orgs
 - Variations on spelling such as:
   - "AM Pharma" != "AM-Pharma"
   - "Colisee" != "Colisée"
